@@ -966,139 +966,6 @@ layout: default
 layout: default
 ---
 
-# 數據儀表｜DailyUserInfoSnapshot
-
-<div class="text-gray-600 text-sm italic mb-4">非即時主表，覆蓋玩家屬性 + 每日聚合，是 Bot 跑分析的第一站</div>
-
-<div class="grid grid-cols-2 gap-6">
-  <div class="border border-gray-300 rounded-lg p-4">
-    <div class="text-xs text-gray-400 font-bold mb-3">TABLE METADATA</div>
-    <div class="flex flex-col gap-2">
-      <div class="flex gap-2 text-xs"><span class="text-gray-500 w-36 shrink-0">table_id</span><span class="font-mono text-gray-700">preprocessed_bklog.<br>DailyUserInfoSnapshot</span></div>
-      <div class="flex gap-2 text-xs"><span class="text-gray-500 w-36 shrink-0">中文表名</span><span class="text-gray-700">日結玩家聚合資訊</span></div>
-      <div class="flex gap-2 text-xs"><span class="text-gray-500 w-36 shrink-0">table_type</span><span class="text-gray-700">Intermediate</span></div>
-      <div class="flex gap-2 text-xs"><span class="text-gray-500 w-36 shrink-0">write_frequency</span><span class="text-gray-700">Daily</span></div>
-      <div class="flex gap-2 text-xs"><span class="text-gray-500 w-36 shrink-0">business_domain</span><span class="text-gray-700">玩家</span></div>
-      <div class="flex gap-2 text-xs"><span class="text-gray-500 w-36 shrink-0">partitions</span><span class="font-mono text-gray-700">BQDate</span></div>
-    </div>
-  </div>
-  <div>
-    <div class="text-xs text-gray-400 font-bold mb-2">BOT 最常用的欄位</div>
-    <div class="flex flex-col divide-y divide-gray-100 text-xs">
-      <div class="py-1 flex gap-3"><span class="font-mono text-blue-600 w-28 shrink-0">BQDate</span><span class="text-gray-600">日期 partition（REQUIRED）</span></div>
-      <div class="py-1 flex gap-3"><span class="font-mono text-blue-600 w-28 shrink-0">UserID</span><span class="text-gray-600">玩家 ID</span></div>
-      <div class="py-1 flex gap-3"><span class="font-mono text-blue-600 w-28 shrink-0">Country</span><span class="text-gray-600">主要市場：CN/JP/TW/US/VN/Others</span></div>
-      <div class="py-1 flex gap-3"><span class="font-mono text-blue-600 w-28 shrink-0">VipLV</span><span class="text-gray-600">當日最高 VIP</span></div>
-      <div class="py-1 flex gap-3"><span class="font-mono text-blue-600 w-28 shrink-0">GameLevel</span><span class="text-gray-600">當日最高遊戲等級</span></div>
-      <div class="py-1 flex gap-3"><span class="font-mono text-blue-600 w-28 shrink-0">BuyNumber</span><span class="text-gray-600">營收（不需排除員工）</span></div>
-      <div class="py-1 flex gap-3"><span class="font-mono text-blue-600 w-28 shrink-0">EndBalance</span><span class="text-gray-600">持有通算金幣（金幣水位）</span></div>
-      <div class="py-1 flex gap-3"><span class="font-mono text-blue-600 w-28 shrink-0">UserType</span><span class="text-gray-600">30日活躍 / 新進 / 30日回流</span></div>
-      <div class="py-1 flex gap-3"><span class="font-mono text-blue-600 w-28 shrink-0">LastBuyDate</span><span class="text-gray-600">180 天內最近一次購買</span></div>
-      <div class="py-1 flex gap-3"><span class="font-mono text-blue-600 w-28 shrink-0">BPBuyNumber</span><span class="text-gray-600">付費 BP 儲值金額</span></div>
-    </div>
-  </div>
-</div>
-
-<div class="absolute bottom-4 right-4 text-sm text-gray-500"><SlideCurrentNo /> / <SlidesTotal /></div>
-
-<!--
-DailyUserInfoSnapshot 是 Bot 跑非即時分析的主要入口，幾乎所有 DAU、營收、留存查詢都從這裡出發。
-重要的業務口徑要講清楚：BQDate 是 partition 欄位，每次查詢都必須指定，否則費用爆炸。
-BuyNumber 是營收欄位，不需要排除員工；但 DAU 等人數查詢要排除員工帳號（在 GameAccount 表）。
-這些規則我們寫進了知識庫，Bot 自動遵守。
--->
----
-layout: default
----
-
-# 歷史 Query 範例
-
-<div class="text-gray-600 text-sm italic mb-4">把過去寫得不錯的 SQL 收進來，Bot 找最像的當範本改</div>
-
-<div class="grid grid-cols-2 gap-6">
-  <div class="border border-gray-300 rounded-lg p-4">
-    <div class="text-xs text-gray-400 font-bold mb-3">計算 DAU &nbsp;·&nbsp; dim: BQDate</div>
-    <pre class="bg-gray-50 rounded p-3 text-xs font-mono leading-snug"><span class="text-gray-400 italic">/* 非即時資料 → 用 DailyUserInfoSnapshot */</span>
-<span class="text-gray-400 italic">/* 非營收資料 → 排除員工 */</span>
-<span class="text-blue-600">SELECT</span> BQDate,
-  <span class="text-purple-600">count</span>(<span class="text-blue-600">distinct</span> UserID) <span class="text-blue-600">AS</span> DAU
-<span class="text-blue-600">FROM</span> <span class="text-green-600">`DailyUserInfoSnapshot`</span>
-<span class="text-blue-600">WHERE</span> BQDate <span class="text-blue-600">BETWEEN</span> <span class="text-amber-600">'2025-08-08'</span>
-  <span class="text-blue-600">AND</span> <span class="text-amber-600">'2025-08-10'</span>
-  <span class="text-blue-600">AND</span> UserID <span class="text-blue-600">NOT IN</span> (
-    <span class="text-blue-600">SELECT</span> UserID <span class="text-blue-600">FROM</span> <span class="text-green-600">`GameAccount`</span>
-  )
-<span class="text-blue-600">GROUP BY</span> BQDate
-<span class="text-blue-600">ORDER BY</span> BQDate</pre>
-  </div>
-  <div class="border border-gray-300 rounded-lg p-4">
-    <div class="text-xs text-gray-400 font-bold mb-3">計算營收 &nbsp;·&nbsp; dim: BQDate</div>
-    <pre class="bg-gray-50 rounded p-3 text-xs font-mono leading-snug"><span class="text-gray-400 italic">/* 非即時資料 → 用 DailyUserInfoSnapshot */</span>
-<span class="text-gray-400 italic">/* 營收資料 → 不需排除員工 */</span>
-<span class="text-blue-600">SELECT</span> BQDate,
-  <span class="text-purple-600">sum</span>(BuyNumber) <span class="text-blue-600">AS</span> BuyNumber
-<span class="text-blue-600">FROM</span> <span class="text-green-600">`DailyUserInfoSnapshot`</span>
-<span class="text-blue-600">WHERE</span> BQDate <span class="text-blue-600">BETWEEN</span> <span class="text-amber-600">'2025-08-08'</span>
-  <span class="text-blue-600">AND</span> <span class="text-amber-600">'2025-08-10'</span>
-<span class="text-blue-600">GROUP BY</span> BQDate
-<span class="text-blue-600">ORDER BY</span> BQDate</pre>
-  </div>
-</div>
-
-<div class="absolute bottom-4 right-4 text-sm text-gray-500"><SlideCurrentNo /> / <SlidesTotal /></div>
-
-<!--
-Bot 使用 RAG（檢索增強生成）機制：收到問題後，先找和使用者需求最相似的歷史 SQL，再修改日期範圍、條件，輸出正確的查詢。
-這個做法比讓 AI 從零生成 SQL 可靠得多，因為有正確的結構和業務口徑作為參考。
-注意左右兩張的差異：DAU 需要 NOT IN GameAccount 排除員工；營收不需要——這個口徑差異就靠範例 SQL 的註解傳達給 Bot。
--->
----
-layout: default
----
-
-# 一般營運知識｜給 Bot 的字典
-
-<div class="text-gray-600 text-sm italic mb-4">把行話、縮寫、規則寫清楚，Bot 才不會把「新進」當「活躍」回給你</div>
-
-<div class="grid grid-cols-2 gap-6">
-  <div class="border border-gray-300 rounded-lg p-4">
-    <div class="text-xs text-gray-400 font-bold mb-3">INDICATORS</div>
-    <div class="flex flex-col divide-y divide-gray-100 text-xs">
-      <div class="py-1 flex gap-3"><span class="font-bold text-gray-700 w-20 shrink-0">DAU</span><span class="text-gray-600">日活躍玩家數 (Daily Active Users)</span></div>
-      <div class="py-1 flex gap-3"><span class="font-bold text-gray-700 w-20 shrink-0">DNU</span><span class="text-gray-600">每日新玩家數 (Daily New Users)</span></div>
-      <div class="py-1 flex gap-3"><span class="font-bold text-gray-700 w-20 shrink-0">DOU</span><span class="text-gray-600">每日老玩家數 (Daily Old Users)</span></div>
-      <div class="py-1 flex gap-3"><span class="font-bold text-gray-700 w-20 shrink-0">BP 營收</span><span class="text-gray-600">付費 BP 儲值金額（BPBuyNumber）</span></div>
-      <div class="py-1 flex gap-3"><span class="font-bold text-gray-700 w-20 shrink-0">黑鑽</span><span class="text-gray-600">BlackDiamondTag 標示的高價值玩家</span></div>
-      <div class="py-1 flex gap-3"><span class="font-bold text-gray-700 w-20 shrink-0">金幣水位</span><span class="text-gray-600">EndBalance：玩家當日持有通算金幣量</span></div>
-      <div class="py-1 flex gap-3"><span class="font-bold text-gray-700 w-20 shrink-0">30日活躍</span><span class="text-gray-600">前 30 天內有上線紀錄的玩家</span></div>
-      <div class="py-1 flex gap-3"><span class="font-bold text-gray-700 w-20 shrink-0">30日回流</span><span class="text-gray-600">前 30 天有過上線、但今日不是新進</span></div>
-    </div>
-  </div>
-  <div class="pt-4">
-    <div class="text-xs text-gray-400 font-bold mb-3">BOT 預設遵守的營運規則</div>
-    <div class="flex flex-col gap-2">
-      <div class="p-2 bg-gray-50 border-l-2 border-blue-400 rounded-r text-xs text-gray-700">非即時數據需求：一律走 DailyUserInfoSnapshot</div>
-      <div class="p-2 bg-gray-50 border-l-2 border-blue-400 rounded-r text-xs text-gray-700">非營收查詢：UserID 排除 GameAccount 員工帳號</div>
-      <div class="p-2 bg-gray-50 border-l-2 border-blue-400 rounded-r text-xs text-gray-700">營收查詢：不需排除員工</div>
-      <div class="p-2 bg-gray-50 border-l-2 border-blue-400 rounded-r text-xs text-gray-700">Country = Others 時，看 CountryDetail 取精準國家</div>
-      <div class="p-2 bg-gray-50 border-l-2 border-amber-400 rounded-r text-xs text-gray-700">通算金幣 = Coin + 25000 × Gem（贈幣同口徑）</div>
-      <div class="p-2 bg-gray-50 border-l-2 border-green-400 rounded-r text-xs text-gray-700">回答先給結論，再附支持的數字與 SQL</div>
-    </div>
-  </div>
-</div>
-
-<div class="absolute bottom-4 right-4 text-sm text-gray-500"><SlideCurrentNo /> / <SlidesTotal /></div>
-
-<!--
-這份字典解決了 AI 不懂業務語言的問題。
-沒有這個，Bot 可能把「新進」誤解為「活躍」，算出完全錯誤的用戶數。
-右側的預設規則讓 Bot 在每次回答時都自動遵守業務口徑，不需要使用者每次重複交代。
-通算金幣的公式（Coin + 25000 × Gem）是特別非直覺的業務規則，這種知識最需要明確告訴 Bot。
--->
----
-layout: default
----
-
 # 評估結論
 
 <div class="grid grid-cols-3 gap-4 mt-4">
@@ -1200,4 +1067,149 @@ class: text-center
 <!--
 開放 Q&A。
 如果有關於資安評估、PoC 規劃、或技術細節的問題，歡迎提出。
+-->
+---
+layout: center
+class: text-center
+---
+
+# Appendix
+
+<div class="text-gray-400 mt-4 text-lg">案例實作細節參考</div>
+
+<div class="absolute bottom-4 right-4 text-sm text-gray-500"><SlideCurrentNo /> / <SlidesTotal /></div>
+
+<!--
+以下為案例設定的詳細知識庫參考資料，供有需要深入了解實作細節的同仁參考。
+-->
+---
+layout: default
+---
+
+# 數據儀表｜DailyUserInfoSnapshot
+
+<div class="text-gray-600 text-sm italic mb-4">非即時主表，覆蓋玩家屬性 + 每日聚合，是 Bot 跑分析的第一站</div>
+
+<div class="grid grid-cols-2 gap-6">
+  <div class="border border-gray-300 rounded-lg p-4">
+    <div class="text-xs text-gray-400 font-bold mb-3">TABLE METADATA</div>
+    <div class="flex flex-col gap-2">
+      <div class="flex gap-2 text-xs"><span class="text-gray-500 w-36 shrink-0">table_id</span><span class="font-mono text-gray-700">preprocessed_bklog.<br>DailyUserInfoSnapshot</span></div>
+      <div class="flex gap-2 text-xs"><span class="text-gray-500 w-36 shrink-0">中文表名</span><span class="text-gray-700">日結玩家聚合資訊</span></div>
+      <div class="flex gap-2 text-xs"><span class="text-gray-500 w-36 shrink-0">table_type</span><span class="text-gray-700">Intermediate</span></div>
+      <div class="flex gap-2 text-xs"><span class="text-gray-500 w-36 shrink-0">write_frequency</span><span class="text-gray-700">Daily</span></div>
+      <div class="flex gap-2 text-xs"><span class="text-gray-500 w-36 shrink-0">business_domain</span><span class="text-gray-700">玩家</span></div>
+      <div class="flex gap-2 text-xs"><span class="text-gray-500 w-36 shrink-0">partitions</span><span class="font-mono text-gray-700">BQDate</span></div>
+    </div>
+  </div>
+  <div>
+    <div class="text-xs text-gray-400 font-bold mb-2">BOT 最常用的欄位</div>
+    <div class="flex flex-col divide-y divide-gray-100 text-xs">
+      <div class="py-1 flex gap-3"><span class="font-mono text-blue-600 w-28 shrink-0">BQDate</span><span class="text-gray-600">日期 partition（REQUIRED）</span></div>
+      <div class="py-1 flex gap-3"><span class="font-mono text-blue-600 w-28 shrink-0">UserID</span><span class="text-gray-600">玩家 ID</span></div>
+      <div class="py-1 flex gap-3"><span class="font-mono text-blue-600 w-28 shrink-0">Country</span><span class="text-gray-600">主要市場：CN/JP/TW/US/VN/Others</span></div>
+      <div class="py-1 flex gap-3"><span class="font-mono text-blue-600 w-28 shrink-0">VipLV</span><span class="text-gray-600">當日最高 VIP</span></div>
+      <div class="py-1 flex gap-3"><span class="font-mono text-blue-600 w-28 shrink-0">GameLevel</span><span class="text-gray-600">當日最高遊戲等級</span></div>
+      <div class="py-1 flex gap-3"><span class="font-mono text-blue-600 w-28 shrink-0">BuyNumber</span><span class="text-gray-600">營收（不需排除員工）</span></div>
+      <div class="py-1 flex gap-3"><span class="font-mono text-blue-600 w-28 shrink-0">EndBalance</span><span class="text-gray-600">持有通算金幣（金幣水位）</span></div>
+      <div class="py-1 flex gap-3"><span class="font-mono text-blue-600 w-28 shrink-0">UserType</span><span class="text-gray-600">30日活躍 / 新進 / 30日回流</span></div>
+      <div class="py-1 flex gap-3"><span class="font-mono text-blue-600 w-28 shrink-0">LastBuyDate</span><span class="text-gray-600">180 天內最近一次購買</span></div>
+      <div class="py-1 flex gap-3"><span class="font-mono text-blue-600 w-28 shrink-0">BPBuyNumber</span><span class="text-gray-600">付費 BP 儲值金額</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="absolute bottom-4 right-4 text-sm text-gray-500"><SlideCurrentNo /> / <SlidesTotal /></div>
+
+<!--
+DailyUserInfoSnapshot 是 Bot 跑非即時分析的主要入口，幾乎所有 DAU、營收、留存查詢都從這裡出發。
+重要的業務口徑：BQDate 是 partition 欄位，每次查詢都必須指定，否則費用爆炸。
+BuyNumber 是營收欄位，不需要排除員工；但 DAU 等人數查詢要排除員工帳號（在 GameAccount 表）。
+這些規則我們寫進了知識庫，Bot 自動遵守。
+-->
+---
+layout: default
+---
+
+# 歷史 Query 範例
+
+<div class="text-gray-600 text-sm italic mb-4">把過去寫得不錯的 SQL 收進來，Bot 找最像的當範本改</div>
+
+<div class="grid grid-cols-2 gap-6">
+  <div class="border border-gray-300 rounded-lg p-4">
+    <div class="text-xs text-gray-400 font-bold mb-3">計算 DAU &nbsp;·&nbsp; dim: BQDate</div>
+    <pre class="bg-gray-50 rounded p-3 text-xs font-mono leading-snug"><span class="text-gray-400 italic">/* 非即時資料 → 用 DailyUserInfoSnapshot */</span>
+<span class="text-gray-400 italic">/* 非營收資料 → 排除員工 */</span>
+<span class="text-blue-600">SELECT</span> BQDate,
+  <span class="text-purple-600">count</span>(<span class="text-blue-600">distinct</span> UserID) <span class="text-blue-600">AS</span> DAU
+<span class="text-blue-600">FROM</span> <span class="text-green-600">`DailyUserInfoSnapshot`</span>
+<span class="text-blue-600">WHERE</span> BQDate <span class="text-blue-600">BETWEEN</span> <span class="text-amber-600">'2025-08-08'</span>
+  <span class="text-blue-600">AND</span> <span class="text-amber-600">'2025-08-10'</span>
+  <span class="text-blue-600">AND</span> UserID <span class="text-blue-600">NOT IN</span> (
+    <span class="text-blue-600">SELECT</span> UserID <span class="text-blue-600">FROM</span> <span class="text-green-600">`GameAccount`</span>
+  )
+<span class="text-blue-600">GROUP BY</span> BQDate
+<span class="text-blue-600">ORDER BY</span> BQDate</pre>
+  </div>
+  <div class="border border-gray-300 rounded-lg p-4">
+    <div class="text-xs text-gray-400 font-bold mb-3">計算營收 &nbsp;·&nbsp; dim: BQDate</div>
+    <pre class="bg-gray-50 rounded p-3 text-xs font-mono leading-snug"><span class="text-gray-400 italic">/* 非即時資料 → 用 DailyUserInfoSnapshot */</span>
+<span class="text-gray-400 italic">/* 營收資料 → 不需排除員工 */</span>
+<span class="text-blue-600">SELECT</span> BQDate,
+  <span class="text-purple-600">sum</span>(BuyNumber) <span class="text-blue-600">AS</span> BuyNumber
+<span class="text-blue-600">FROM</span> <span class="text-green-600">`DailyUserInfoSnapshot`</span>
+<span class="text-blue-600">WHERE</span> BQDate <span class="text-blue-600">BETWEEN</span> <span class="text-amber-600">'2025-08-08'</span>
+  <span class="text-blue-600">AND</span> <span class="text-amber-600">'2025-08-10'</span>
+<span class="text-blue-600">GROUP BY</span> BQDate
+<span class="text-blue-600">ORDER BY</span> BQDate</pre>
+  </div>
+</div>
+
+<div class="absolute bottom-4 right-4 text-sm text-gray-500"><SlideCurrentNo /> / <SlidesTotal /></div>
+
+<!--
+Bot 使用 RAG（檢索增強生成）機制：收到問題後，先找和使用者需求最相似的歷史 SQL，再修改日期範圍、條件，輸出正確的查詢。
+左右兩張的差異：DAU 需要 NOT IN GameAccount 排除員工；營收不需要——這個口徑差異就靠範例 SQL 的註解傳達給 Bot。
+-->
+---
+layout: default
+---
+
+# 一般營運知識｜給 Bot 的字典
+
+<div class="text-gray-600 text-sm italic mb-4">把行話、縮寫、規則寫清楚，Bot 才不會把「新進」當「活躍」回給你</div>
+
+<div class="grid grid-cols-2 gap-6">
+  <div class="border border-gray-300 rounded-lg p-4">
+    <div class="text-xs text-gray-400 font-bold mb-3">INDICATORS</div>
+    <div class="flex flex-col divide-y divide-gray-100 text-xs">
+      <div class="py-1 flex gap-3"><span class="font-bold text-gray-700 w-20 shrink-0">DAU</span><span class="text-gray-600">日活躍玩家數 (Daily Active Users)</span></div>
+      <div class="py-1 flex gap-3"><span class="font-bold text-gray-700 w-20 shrink-0">DNU</span><span class="text-gray-600">每日新玩家數 (Daily New Users)</span></div>
+      <div class="py-1 flex gap-3"><span class="font-bold text-gray-700 w-20 shrink-0">DOU</span><span class="text-gray-600">每日老玩家數 (Daily Old Users)</span></div>
+      <div class="py-1 flex gap-3"><span class="font-bold text-gray-700 w-20 shrink-0">BP 營收</span><span class="text-gray-600">付費 BP 儲值金額（BPBuyNumber）</span></div>
+      <div class="py-1 flex gap-3"><span class="font-bold text-gray-700 w-20 shrink-0">黑鑽</span><span class="text-gray-600">BlackDiamondTag 標示的高價值玩家</span></div>
+      <div class="py-1 flex gap-3"><span class="font-bold text-gray-700 w-20 shrink-0">金幣水位</span><span class="text-gray-600">EndBalance：玩家當日持有通算金幣量</span></div>
+      <div class="py-1 flex gap-3"><span class="font-bold text-gray-700 w-20 shrink-0">30日活躍</span><span class="text-gray-600">前 30 天內有上線紀錄的玩家</span></div>
+      <div class="py-1 flex gap-3"><span class="font-bold text-gray-700 w-20 shrink-0">30日回流</span><span class="text-gray-600">前 30 天有過上線、但今日不是新進</span></div>
+    </div>
+  </div>
+  <div class="pt-4">
+    <div class="text-xs text-gray-400 font-bold mb-3">BOT 預設遵守的營運規則</div>
+    <div class="flex flex-col gap-2">
+      <div class="p-2 bg-gray-50 border-l-2 border-blue-400 rounded-r text-xs text-gray-700">非即時數據需求：一律走 DailyUserInfoSnapshot</div>
+      <div class="p-2 bg-gray-50 border-l-2 border-blue-400 rounded-r text-xs text-gray-700">非營收查詢：UserID 排除 GameAccount 員工帳號</div>
+      <div class="p-2 bg-gray-50 border-l-2 border-blue-400 rounded-r text-xs text-gray-700">營收查詢：不需排除員工</div>
+      <div class="p-2 bg-gray-50 border-l-2 border-blue-400 rounded-r text-xs text-gray-700">Country = Others 時，看 CountryDetail 取精準國家</div>
+      <div class="p-2 bg-gray-50 border-l-2 border-amber-400 rounded-r text-xs text-gray-700">通算金幣 = Coin + 25000 × Gem（贈幣同口徑）</div>
+      <div class="p-2 bg-gray-50 border-l-2 border-green-400 rounded-r text-xs text-gray-700">回答先給結論，再附支持的數字與 SQL</div>
+    </div>
+  </div>
+</div>
+
+<div class="absolute bottom-4 right-4 text-sm text-gray-500"><SlideCurrentNo /> / <SlidesTotal /></div>
+
+<!--
+這份字典解決了 AI 不懂業務語言的問題。
+沒有這個，Bot 可能把「新進」誤解為「活躍」，算出完全錯誤的用戶數。
+通算金幣的公式（Coin + 25000 × Gem）是特別非直覺的業務規則，這種知識最需要明確告訴 Bot。
 -->

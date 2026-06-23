@@ -26,25 +26,6 @@ mdc: true
 這份報告結合了原始碼分析、實際部署測試，以及企業應用視角，目標是評估它是否值得我們進一步導入。
 -->
 ---
-layout: center
-class: text-center
----
-
-# 這個名字，不只是個名字
-
-<div class="text-6xl mt-8">𓂀</div>
-
-<div class="text-gray-600 mt-6 text-lg">
-  Hermes・Hermès・Harness
-</div>
-
-<div class="absolute bottom-4 right-4 text-sm text-gray-500"><SlideCurrentNo /> / <SlidesTotal /></div>
-
-<!--
-先來暖個場。Hermes 這個名字出現在三個完全不同的世界，但它們有同一個核心精神：穿梭、傳遞、駕馭。
-下一頁會展開說明。
--->
----
 layout: default
 ---
 

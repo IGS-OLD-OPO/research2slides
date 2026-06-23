@@ -796,6 +796,45 @@ layout: default
 整體定位：比同類開源 AI Agent 框架更有資安自覺，但尚不到「企業開箱即用」的成熟度。
 -->
 ---
+layout: default
+---
+
+# 適用場景 vs 不適用場景
+
+<div class="grid grid-cols-2 gap-6 mt-4">
+  <div>
+    <div class="text-xs font-bold text-green-700 mb-3">✅ 適合導入的場景</div>
+    <div class="flex flex-col gap-2 text-xs">
+      <div class="p-2 bg-green-50 border border-green-300 rounded">🔍 非技術人員用自然語言查內部資料（已驗證，見案例）</div>
+      <div class="p-2 bg-green-50 border border-green-300 rounded">🔄 IT / 工程部門重複性自動化任務</div>
+      <div class="p-2 bg-green-50 border border-green-300 rounded">🤖 需要多步驟無人值守的長任務（配合 Multi-agent Kanban）</div>
+      <div class="p-2 bg-green-50 border border-green-300 rounded">🏢 多部門各自維護行為隔離的 AI 助理（SOUL.md 分離管理）</div>
+      <div class="p-2 bg-green-50 border border-green-300 rounded">🔀 需靈活切換底層模型、降低廠商鎖定的場合</div>
+    </div>
+  </div>
+  <div>
+    <div class="text-xs font-bold text-red-700 mb-3">⚠️ 需謹慎或暫緩的場景</div>
+    <div class="flex flex-col gap-2 text-xs">
+      <div class="p-2 bg-red-50 border border-red-300 rounded">🏦 高合規監管環境（金融、醫療、法務）以預設配置直接上線</div>
+      <div class="p-2 bg-red-50 border border-red-300 rounded">🔒 需要細粒度 ACL 的場合（SOUL.md / MEMORY.md 無原生存取控制）</div>
+      <div class="p-2 bg-red-50 border border-red-300 rounded">🛠 無 Python 能力自建 guardrails，且無監管直接部署</div>
+      <div class="p-2 bg-yellow-50 border border-yellow-300 rounded">⚙️ 自動生成的 Skill（Python 程式碼）直接進生產環境，無 code review 流程</div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-3 p-2 bg-gray-100 border border-gray-300 rounded text-xs text-gray-600 text-center">
+  核心前提：啟用 Docker 沙箱 + 指令審批白名單後，上述「謹慎」項目風險可大幅降低
+</div>
+
+<div class="absolute bottom-4 right-4 text-sm text-gray-500"><SlideCurrentNo /> / <SlidesTotal /></div>
+
+<!--
+這頁是技術評估章節的收尾，把所有技術特色和資安分析轉化為「能用/不能用」的直接答案。
+左欄是已驗證或有強理由的適合場景；右欄是需要額外準備或有已知缺口的場景。
+最下方的「核心前提」很重要：Docker + 白名單不是可選項，是把右欄風險降到可接受範圍的必要條件。
+-->
+---
 layout: center
 class: text-center
 ---

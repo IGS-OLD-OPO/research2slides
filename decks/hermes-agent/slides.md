@@ -167,36 +167,33 @@ layout: default
 
 Agent 透過主流通訊平台操作，使用者不需學新介面
 
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div>
-    <div class="flex gap-3 flex-wrap">
-      <div class="border border-gray-400 rounded-lg px-4 py-2 text-center">
-        <div class="text-2xl">💬</div>
-        <div class="text-xs mt-1">Telegram</div>
+<div class="grid grid-cols-2 gap-8 mt-4 items-center">
+  <div class="flex flex-col gap-4">
+    <div class="grid grid-cols-2 gap-3">
+      <div class="border border-gray-400 rounded-xl px-4 py-4 text-center">
+        <div class="text-3xl">💬</div>
+        <div class="text-sm mt-1">Telegram</div>
       </div>
-      <div class="border border-gray-400 rounded-lg px-4 py-2 text-center">
-        <div class="text-2xl">🎮</div>
-        <div class="text-xs mt-1">Discord</div>
+      <div class="border border-gray-400 rounded-xl px-4 py-4 text-center">
+        <div class="text-3xl">🎮</div>
+        <div class="text-sm mt-1">Discord</div>
       </div>
-      <div class="border border-gray-400 rounded-lg px-4 py-2 text-center">
-        <div class="text-2xl">💼</div>
-        <div class="text-xs mt-1">Slack</div>
+      <div class="border border-gray-400 rounded-xl px-4 py-4 text-center">
+        <div class="text-3xl">💼</div>
+        <div class="text-sm mt-1">Slack</div>
       </div>
-      <div class="border border-gray-400 rounded-lg px-4 py-2 text-center">
-        <div class="text-2xl">📱</div>
-        <div class="text-xs mt-1">WhatsApp</div>
+      <div class="border border-gray-400 rounded-xl px-4 py-4 text-center">
+        <div class="text-3xl">📱</div>
+        <div class="text-sm mt-1">WhatsApp</div>
       </div>
     </div>
-    <div class="mt-4 p-3 bg-blue-50 border border-blue-300 rounded text-xs">
+    <div class="p-4 bg-blue-50 border border-blue-300 rounded-xl text-sm">
       📌 <strong>實際場景：</strong>工程師或業務人員直接在 Slack 發指令給 Agent，完成自動化任務，不需切換工具
     </div>
-    <div class="mt-3 p-3 bg-green-50 border border-green-300 rounded text-xs">
-      🔥 <strong>精選整合：</strong>Telegram / Discord / Slack / WhatsApp / Signal / Mattermost / Matrix / Email (SMTP)
-    </div>
   </div>
-  <div class="flex flex-col justify-center">
+  <div class="flex flex-col items-center">
     <ZoomImg src="/messaging-integrations.jpg">
-      <img src="/messaging-integrations.jpg" class="rounded-lg border border-gray-300 shadow-sm max-h-[280px] object-contain mx-auto" />
+      <img src="/messaging-integrations.jpg" class="rounded-lg border border-gray-300 shadow-sm max-h-[350px] object-contain mx-auto" />
     </ZoomImg>
     <div class="text-xs text-gray-500 mt-2 text-center">Hermes 內建 messaging integrations 列表（部分平台）</div>
   </div>

@@ -832,7 +832,7 @@ layout: default
     </div>
     <div class="p-3 bg-blue-50 border border-blue-300 rounded text-xs">
       💡 <strong>與部署姿態互補：</strong><br>
-      審批機制控制「哪些指令被允許執行」，OS 隔離邊界控制「執行後能影響什麼範圍」——兩者應同時考慮（見下頁）
+      審批機制控制「哪些指令被允許執行」，OS 隔離邊界控制「執行後能影響什麼範圍」——兩者應同時考慮（詳見 Appendix）
     </div>
   </div>
 </div>
@@ -844,71 +844,6 @@ layout: default
 三種模式對應三種人機迴路層次：manual（人在迴路）、smart（人在外圈）、off（全自動）。
 與部署姿態互補：審批控制「哪些指令進來」，OS 邊界控制「執行後的爆炸半徑」。
 兩者缺一不可：只有審批沒有隔離，AI 被繞過時無底線；只有隔離沒有審批，使用體驗差且難以追責。
--->
----
-layout: default
----
-
-# 以 OS 為邊界：部署姿態選擇
-
-<div class="text-xs text-gray-500 mb-3">Docker terminal-backend ≠ 全程式沙箱——了解各姿態的實際隔離範圍，再決定部署方式</div>
-
-<div class="overflow-x-auto">
-  <table class="table-auto border-collapse w-full text-xs">
-    <thead>
-      <tr class="bg-gray-100">
-        <th class="border border-gray-300 px-3 py-2 text-left">隔離範圍</th>
-        <th class="border border-gray-300 px-3 py-2 text-center">Local backend<br><span class="text-gray-400 font-normal">預設</span></th>
-        <th class="border border-gray-300 px-3 py-2 text-center">Docker terminal-backend<br><span class="text-gray-400 font-normal">官方推薦</span></th>
-        <th class="border border-gray-300 px-3 py-2 text-center">整程式容器化<br><span class="text-gray-400 font-normal">進階</span></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="border border-gray-300 px-3 py-2">Shell / file tool 輸出</td>
-        <td class="border border-gray-300 px-3 py-2 text-center text-red-600">❌ 主機直接</td>
-        <td class="border border-gray-300 px-3 py-2 text-center text-green-600">✅ 容器內</td>
-        <td class="border border-gray-300 px-3 py-2 text-center text-green-600">✅ 容器內</td>
-      </tr>
-      <tr class="bg-gray-50">
-        <td class="border border-gray-300 px-3 py-2">Code-exec 執行環境</td>
-        <td class="border border-gray-300 px-3 py-2 text-center text-red-600">❌</td>
-        <td class="border border-gray-300 px-3 py-2 text-center text-red-600">❌ terminal 以外不含</td>
-        <td class="border border-gray-300 px-3 py-2 text-center text-green-600">✅</td>
-      </tr>
-      <tr>
-        <td class="border border-gray-300 px-3 py-2">MCP 子程序</td>
-        <td class="border border-gray-300 px-3 py-2 text-center text-red-600">❌</td>
-        <td class="border border-gray-300 px-3 py-2 text-center text-red-600">❌</td>
-        <td class="border border-gray-300 px-3 py-2 text-center text-green-600">✅</td>
-      </tr>
-      <tr class="bg-gray-50">
-        <td class="border border-gray-300 px-3 py-2">Plugin / Skill 載入</td>
-        <td class="border border-gray-300 px-3 py-2 text-center text-red-600">❌</td>
-        <td class="border border-gray-300 px-3 py-2 text-center text-red-600">❌</td>
-        <td class="border border-gray-300 px-3 py-2 text-center text-green-600">✅</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<div class="grid grid-cols-2 gap-4 mt-3">
-  <div class="p-2 bg-yellow-50 border border-yellow-400 rounded text-xs text-yellow-800">
-    ⚠️ <strong>SECURITY.md §2.2 原文：</strong>「terminal-backend Docker only wraps shell/file tool outputs」——進程內的 Plugin、MCP、Skill 仍在主機環境執行
-  </div>
-  <div class="p-2 bg-blue-50 border border-blue-300 rounded text-xs text-blue-700">
-    💡 <strong>進階參考：</strong>NVIDIA OpenShell 以整程式容器化實現最嚴格隔離；適合高敏感生產環境，但運維複雜度顯著提升
-  </div>
-</div>
-
-<div class="absolute bottom-4 right-4 text-sm text-gray-500"><SlideCurrentNo /> / <SlidesTotal /></div>
-
-<!--
-這頁是對前一頁指令審批機制的補充——審批決定「哪些指令進來」，部署姿態決定「執行後影響哪些範圍」。
-常見誤解：「我啟用了 Docker terminal-backend，就已經有沙箱了」。
-事實是：Docker terminal-backend 只沙箱化 shell 和 file tool 的輸出——Hermes 主程序本身、MCP 子程序、Plugin 和 Skill 的載入，仍然在主機環境執行。
-要達到真正的全程式隔離，必須把整個 Hermes 進程放進容器，這是 NVIDIA OpenShell 的做法。
-企業評估建議：先從 Docker terminal-backend 開始（官方推薦、有意義的隔離），同時規劃整程式容器化路線圖。
 -->
 ---
 layout: default
@@ -1844,3 +1779,60 @@ layout: default
 </div>
 
 <div class="absolute bottom-4 right-4 text-sm text-gray-500"><SlideCurrentNo /> / <SlidesTotal /></div>
+---
+layout: default
+---
+
+# 以 OS 為邊界：部署姿態選擇
+
+<div class="text-xs text-gray-500 mb-3">Docker terminal-backend ≠ 全程式沙箱——各部署姿態的實際隔離範圍對照</div>
+
+<div class="overflow-x-auto">
+  <table class="table-auto border-collapse w-full text-xs">
+    <thead>
+      <tr class="bg-gray-100">
+        <th class="border border-gray-300 px-3 py-2 text-left">Agent 執行的動作</th>
+        <th class="border border-gray-300 px-3 py-2 text-center">Local backend<br><span class="text-gray-400 font-normal">預設</span></th>
+        <th class="border border-gray-300 px-3 py-2 text-center">Docker terminal-backend<br><span class="text-gray-400 font-normal">官方推薦</span></th>
+        <th class="border border-gray-300 px-3 py-2 text-center">整程式容器化<br><span class="text-gray-400 font-normal">進階</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="border border-gray-300 px-3 py-2">Shell / file 指令（刪檔、跑腳本）</td>
+        <td class="border border-gray-300 px-3 py-2 text-center text-red-600">直接在主機</td>
+        <td class="border border-gray-300 px-3 py-2 text-center text-green-600">容器內（隔離）</td>
+        <td class="border border-gray-300 px-3 py-2 text-center text-green-600">容器內（隔離）</td>
+      </tr>
+      <tr class="bg-gray-50">
+        <td class="border border-gray-300 px-3 py-2">Code-exec 執行環境</td>
+        <td class="border border-gray-300 px-3 py-2 text-center text-red-600">直接在主機</td>
+        <td class="border border-gray-300 px-3 py-2 text-center text-red-600">直接在主機</td>
+        <td class="border border-gray-300 px-3 py-2 text-center text-green-600">容器內（隔離）</td>
+      </tr>
+      <tr>
+        <td class="border border-gray-300 px-3 py-2">MCP 工具 / Plugin / Skill</td>
+        <td class="border border-gray-300 px-3 py-2 text-center text-red-600">直接在主機</td>
+        <td class="border border-gray-300 px-3 py-2 text-center text-red-600">直接在主機</td>
+        <td class="border border-gray-300 px-3 py-2 text-center text-green-600">容器內（隔離）</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="grid grid-cols-2 gap-4 mt-3">
+  <div class="p-2 bg-yellow-50 border border-yellow-400 rounded text-xs text-yellow-800">
+    ⚠️ <strong>SECURITY.md §2.2：</strong>「terminal-backend Docker only wraps shell/file tool outputs」——MCP、Plugin、Skill 仍在主機環境執行
+  </div>
+  <div class="p-2 bg-blue-50 border border-blue-300 rounded text-xs text-blue-700">
+    💡 <strong>進階參考：</strong>NVIDIA OpenShell 以整程式容器化實現最嚴格隔離；適合高敏感生產環境，運維複雜度較高
+  </div>
+</div>
+
+<div class="absolute bottom-4 right-4 text-sm text-gray-500"><SlideCurrentNo /> / <SlidesTotal /></div>
+
+<!--
+補充說明給技術受眾：Docker terminal-backend 只沙箱化 shell 和 file tool 的輸出。
+Hermes 主程序、MCP 子程序、Plugin 和 Skill，仍然在主機環境執行。
+整程式容器化才能真正全包，但需要自行搭建環境（docker-compose 或 k8s）。
+-->

@@ -767,7 +767,7 @@ layout: default
   <div class="border border-yellow-600 rounded-lg p-4">
     <div class="font-bold text-yellow-700 mb-3 text-sm">資安風險如何？</div>
     <ul class="text-xs text-gray-700 space-y-2">
-      <li>✅ 無已知 CVE，有主動 Threat Model</li>
+      <li>✅ CVE 相較於 OpenCalw 少很多</li>
       <li>⚠️ 進程內防護為啟發式，非真正隔離</li>
       <li>⚠️ 預設部署非最安全配置</li>
       <li>🟡 <strong>容器化後</strong>可接受部署於非高敏環境</li>
@@ -796,6 +796,7 @@ layout: default
 資安：定性是「成長中」——無 CVE、有誠實揭露，但需要企業主動配置，不能開箱即用。
 下一步：PoC 門檻極低，NT$160 就能在真實業務場景驗證，沒有不試的理由。
 -->
+
 ---
 layout: default
 ---
